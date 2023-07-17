@@ -7,7 +7,7 @@
 // @include       https://beta.waze.com/*/editor*
 // @exclude       https://www.waze.com/user*
 // @exclude       https://www.waze.com/*/user*
-// @version       2.2.3
+// @version       2.2.4
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @copyright     2018 seb-d59, 2016 Michael Wikberg <waze@wikberg.fi>
@@ -45,7 +45,7 @@ function run_ja() {
 	/*
 	 * First some variable and enumeration definitions
 	 */
-	var junctionangle_version = "2.2.3";
+	var junctionangle_version = "2.2.4";
 
 	var junctionangle_debug = 1;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
 
@@ -1011,7 +1011,7 @@ function run_ja() {
 				}
 
 				//Transform LonLat to actual layer projection
-				var tmp_roundabout_center = ja_coordinates_to_point({0: ja_selected_roundabouts[tmp_roundabout].p.x, 1: ja_selected_roundabouts[tmp_roundabout].p.y});
+				var tmp_roundabout_center = ja_coordinates_to_point([ja_selected_roundabouts[tmp_roundabout].p.x, ja_selected_roundabouts[tmp_roundabout].p.y]);
 				var angle = ja_angle_between_points(
 					getByID(window.W.model.nodes,ja_selected_roundabouts[tmp_roundabout].in_n).geometry,
 					tmp_roundabout_center,
@@ -1028,7 +1028,6 @@ function run_ja() {
 						}
 					)
 				]);
-				
 			}
 		}
 
@@ -1556,7 +1555,7 @@ function run_ja() {
 			});
 
 			ja_log(nodes, 3);
-			var center = ja_coordinates_to_point(element.geometry.coordinates);
+			var center = ja_coordinates_to_point([element.geometry.x, element.geometry.y]);
 			ja_log(center, 3);
 			var distances = [];
 			Object.getOwnPropertyNames(nodes).forEach(function(name) {
@@ -1924,7 +1923,7 @@ function run_ja() {
 				} else {
 					var angle = ja_angle_between_points(
 						getByID(window.W.model.nodes,n_in).geometry,
-						ja_coordinates_to_point({0: junction.geometry.x, 1: junction.geometry.y}),
+						ja_coordinates_to_point([junction.geometry.x, junction.geometry.y]),
 						getByID(window.W.model.nodes,n).geometry
 					);
 					ja_log("Angle is: " + angle, 3);
@@ -1961,14 +1960,10 @@ function run_ja() {
 	 */
 
 	function ja_coordinates_to_point(coordinates) {
-		return window.OpenLayers.Projection.transform(
-			new window.OpenLayers.Geometry.Point(
+		return new window.OpenLayers.Geometry.Point(
 				coordinates[0],
 				coordinates[1]
-			),
-			"EPSG:4326",
-			ja_mapLayer.projection.projCode
-		);
+			)
 	}
 
 	function ja_get_first_point(segment) {
