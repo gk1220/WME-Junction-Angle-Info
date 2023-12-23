@@ -3,7 +3,7 @@
 // @description   Show the angle between two selected (and connected) segments
 // @match         *://*.waze.com/*editor*
 // @exclude       *://*.waze.com/user/editor*
-// @version       2.2.5
+// @version       2.2.6
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @copyright     2018 seb-d59, 2016 Michael Wikberg <waze@wikberg.fi>
@@ -41,7 +41,7 @@ function run_ja() {
     /*
 	 * First some variable and enumeration definitions
 	 */
-    var junctionangle_version = "2.2.5";
+    var junctionangle_version = "2.2.6";
  
     var junctionangle_debug = 0;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
  
@@ -1263,8 +1263,8 @@ function run_ja() {
                 }
                 //get the initial marker point
                 point = new window.OpenLayers.Geometry.Point(
-                    node.geometry.x + (ja_extra_space_multiplier * ja_label_distance * Math.cos((ha * Math.PI) / 180)),
-                    node.geometry.y + (ja_extra_space_multiplier * ja_label_distance * Math.sin((ha * Math.PI) / 180))
+                    node.getOLGeometry().x + (ja_extra_space_multiplier * ja_label_distance * Math.cos((ha * Math.PI) / 180)),
+                    node.getOLGeometry().y + (ja_extra_space_multiplier * ja_label_distance * Math.sin((ha * Math.PI) / 180))
                 );
                 ja_draw_marker(point, node, ja_label_distance, a, ha, true, ja_junction_type);
  
@@ -1312,8 +1312,8 @@ function run_ja() {
                         ha = angle[0];
                         a = ja_angle_diff(a_in[0], angles[j][0], false);
                         point = new window.OpenLayers.Geometry.Point(
-                            node.geometry.x + (ja_label_distance * 2 * Math.cos((ha * Math.PI) / 180)),
-                            node.geometry.y + (ja_label_distance * 2 * Math.sin((ha * Math.PI) / 180))
+                            node.getOLGeometry().x + (ja_label_distance * 2 * Math.cos((ha * Math.PI) / 180)),
+                            node.getOLGeometry().y + (ja_label_distance * 2 * Math.sin((ha * Math.PI) / 180))
                         );
                         ja_draw_marker(point, node, ja_label_distance, a, ha, true,
                                        ja_getOption("guess") ?
@@ -1328,8 +1328,8 @@ function run_ja() {
                         ja_log("Angle between " + angle[1] + " and " + angles[(j + 1) % angles.length][1] + " is " +
                                a + " and position for label should be at " + ha, 3);
                         point = new window.OpenLayers.Geometry.Point(
-                            node.geometry.x + (ja_label_distance * 1.25 * Math.cos((ha * Math.PI) / 180)),
-                            node.geometry.y + (ja_label_distance * 1.25 * Math.sin((ha * Math.PI) / 180))
+                            node.getOLGeometry().x + (ja_label_distance * 1.25 * Math.cos((ha * Math.PI) / 180)),
+                            node.getOLGeometry().y + (ja_label_distance * 1.25 * Math.sin((ha * Math.PI) / 180))
                         );
                         ja_draw_marker(point, node, ja_label_distance, a, ha);
                     }
@@ -1364,8 +1364,8 @@ function run_ja() {
         //(or maybe something else in the future; like turn restriction arrows or something)
         //FZ69617: Exctract initial label distance from point
         var ja_tmp_distance = Math.abs(ha) % 180 < 45 || Math.abs(ha) % 180 > 135 ?
-            (point.x - node.geometry.x) / (Math.cos((ha * Math.PI) / 180)) :
-        (point.y - node.geometry.y) / (Math.sin((ha * Math.PI) / 180));
+            (point.x - node.getOLGeometry().x) / (Math.cos((ha * Math.PI) / 180)) :
+        (point.y - node.getOLGeometry().y) / (Math.sin((ha * Math.PI) / 180));
         ja_log("Starting distance estimation", 3);
         while(ja_mapLayer.features.some(function(feature){
             if(typeof feature.attributes.ja_type !== 'undefined' && feature.attributes.ja_type !== 'roundaboutOverlay') {
@@ -1382,8 +1382,8 @@ function run_ja() {
             ja_tmp_distance += ja_label_distance / 4;
             ja_log("setting distance to " + ja_tmp_distance, 2);
             point = new window.OpenLayers.Geometry.Point(
-                node.geometry.x + (ja_tmp_distance * Math.cos((ha * Math.PI) / 180)),
-                node.geometry.y + (ja_tmp_distance * Math.sin((ha * Math.PI) / 180))
+                node.getOLGeometry().x + (ja_tmp_distance * Math.cos((ha * Math.PI) / 180)),
+                node.getOLGeometry().y + (ja_tmp_distance * Math.sin((ha * Math.PI) / 180))
             );
         }
         ja_log("Distance estimation done", 3);
@@ -1509,7 +1509,7 @@ function run_ja() {
         //Draw a line to the point
         ja_mapLayer.addFeatures([
             new window.OpenLayers.Feature.Vector(
-                new window.OpenLayers.Geometry.LineString([node.geometry, point]),
+                new window.OpenLayers.Geometry.LineString([node.getOLGeometry(), point]),
                 {},
                 {strokeOpacity: 0.6, strokeWidth: 1.2, strokeDashstyle: "solid", strokeColor: "#ff9966"}
             )
@@ -1536,14 +1536,14 @@ function run_ja() {
             });
  
             ja_log(nodes, 3);
-            var center = ja_coordinates_to_point([element.geometry.x, element.geometry.y]);
+            var center = ja_coordinates_to_point([element.getOLGeometry().x, element.getOLGeometry().y]);
             ja_log(center, 3);
             var distances = [];
             Object.getOwnPropertyNames(nodes).forEach(function(name) {
                 ja_log("Checking " + name + " distance", 3);
                 var dist = Math.sqrt(
-                    Math.pow(nodes[name].attributes.geometry.x - center.x, 2) +
-                    Math.pow(nodes[name].attributes.geometry.y - center.y, 2)
+                    Math.pow(nodes[name].getOLGeometry().x - center.x, 2) +
+                    Math.pow(nodes[name].getOLGeometry().y - center.y, 2)
                 );
                 distances.push(dist);
             });
@@ -1752,7 +1752,6 @@ function run_ja() {
     }
  
     function ja_primary_name_match(street_in, streets) {
-        debugger
         ja_log("PN", 2);
         ja_log(street_in, 2);
         ja_log(streets, 2);
@@ -1782,7 +1781,7 @@ function run_ja() {
 	 * @returns {number}
 	 */
     function ja_segment_length(segment) {
-        var len = segment.geometry.getGeodesicLength(window.W.map.olMap.projection);
+        var len = segment.getOLGeometry().getGeodesicLength(window.W.map.olMap.projection);
         ja_log("segment: " + segment.attributes.id
                + " computed len: " + len + " attrs len: " + segment.attributes.length, 3);
         return len;
@@ -1905,7 +1904,7 @@ function run_ja() {
                 } else {
                     var angle = ja_angle_between_points(
                         getByID(window.W.model.nodes,n_in).geometry,
-                        ja_coordinates_to_point([junction.geometry.x, junction.geometry.y]),
+                        ja_coordinates_to_point([junction.getOLGeometry().x, junction.getOLGeometry().y]),
                         getByID(window.W.model.nodes,n).geometry
                     );
                     ja_log("Angle is: " + angle, 3);
@@ -1949,19 +1948,19 @@ function run_ja() {
     }
  
     function ja_get_first_point(segment) {
-        return segment.geometry.components[0];
+        return segment.getOLGeometry().components[0];
     }
  
     function ja_get_last_point(segment) {
-        return segment.geometry.components[segment.geometry.components.length - 1];
+        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 1];
     }
  
     function ja_get_second_point(segment) {
-        return segment.geometry.components[1];
+        return segment.getOLGeometry().components[1];
     }
  
     function ja_get_next_to_last_point(segment) {
-        return segment.geometry.components[segment.geometry.components.length - 2];
+        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 2];
     }
  
     //get the absolute angle for a segment end point
