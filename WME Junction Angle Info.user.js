@@ -3,7 +3,7 @@
 // @description   Show the angle between two selected (and connected) segments
 // @match         *://*.waze.com/*editor*
 // @exclude       *://*.waze.com/user/editor*
-// @version       2.2.6
+// @version       2.2.7
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @copyright     2018 seb-d59, 2016 Michael Wikberg <waze@wikberg.fi>
@@ -41,7 +41,7 @@ function run_ja() {
     /*
 	 * First some variable and enumeration definitions
 	 */
-    var junctionangle_version = "2.2.6";
+    var junctionangle_version = "2.2.7";
  
     var junctionangle_debug = 0;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
  
@@ -1947,24 +1947,34 @@ function run_ja() {
         )
     }
  
+    function getOLFeatureGeometryFromSegment(segment) {
+        const feature = W.map.segmentLayer.features.find((feat) => feat.attributes.wazeFeature.id === segment.attributes.id);
+        return feature.geometry;
+    }
+ 
     function ja_get_first_point(segment) {
-        return segment.getOLGeometry().components[0];
+        return getOLFeatureGeometryFromSegment(segment).components[0];
+//        return segment.getOLGeometry().components[0];
     }
  
     function ja_get_last_point(segment) {
-        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 1];
+        return getOLFeatureGeometryFromSegment(segment).components.at(-1);
+//        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 1];
     }
  
     function ja_get_second_point(segment) {
-        return segment.getOLGeometry().components[1];
+        return getOLFeatureGeometryFromSegment(segment).components[1];
+//        return segment.getOLGeometry().components[1];
     }
  
     function ja_get_next_to_last_point(segment) {
-        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 2];
+        return getOLFeatureGeometryFromSegment(segment).components.at(-2);
+//        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 2];
     }
  
     //get the absolute angle for a segment end point
     function ja_getAngle(ja_node, ja_segment) {
+        debugger
         ja_log("node: " + ja_node, 2);
         ja_log("segment: " + ja_segment, 2);
         if (ja_node == null || ja_segment == null) { return null; }
