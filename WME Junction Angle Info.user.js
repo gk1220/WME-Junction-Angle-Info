@@ -3,7 +3,7 @@
 // @description   Show the angle between two selected (and connected) segments
 // @match         *://*.waze.com/*editor*
 // @exclude       *://*.waze.com/user/editor*
-// @version       2.2.9
+// @version       2.2.10
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @require       https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
@@ -44,7 +44,7 @@ function run_ja() {
     /*
 	 * First some variable and enumeration definitions
 	 */
-    var junctionangle_version = "2.2.9";
+    var junctionangle_version = "2.2.10";
 
     var junctionangle_debug = 0;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
 
@@ -275,6 +275,7 @@ function run_ja() {
         }
 
         WazeWrap.Interface.AddLayerCheckbox("display", "Junction Angle Info", ja_getOption("defaultOn"), layerToggled);
+        layerToggled(ja_getOption("defaultOn"))
 
         ja_apply();
 
