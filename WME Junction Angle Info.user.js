@@ -4,7 +4,7 @@
 // @match         https://beta.waze.com/*editor*
 // @match         https://www.waze.com/*editor*
 // @exclude       https://www.waze.com/*user/*editor/*
-// @version       2.2.11
+// @version       2.2.12
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @require       https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
@@ -43,7 +43,7 @@ function run_ja() {
     /*
 	 * First some variable and enumeration definitions
 	 */
-    var junctionangle_version = "2.2.11";
+    var junctionangle_version = "2.2.12";
  
     var junctionangle_debug = 0;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
  
@@ -178,7 +178,7 @@ function run_ja() {
         if (window.W.selectionManager.getSelectedFeatures().length > 1) { return; }
         var registerInterval = false;
         window.W.selectionManager.getSelectedFeatures().forEach(function(element) {
-            switch (W.version.substr(1,3) > '2.1' ? element._wmeObject.type : element.attributes.wazeFeature._wmeObject.type) {
+            switch (element._wmeObject.type) {
                 case "node":
                 case "segment":
                     registerInterval = true;
@@ -865,25 +865,25 @@ function run_ja() {
  
         window.W.selectionManager.getSelectedFeatures().forEach(function(element) {
             ja_log(element, 3);
-            switch (W.version.substr(1,3) > '2.1' ? element._wmeObject.type : element.attributes.wazeFeature._wmeObject.type) {
+            switch (element._wmeObject.type) {
                 case "node":
-                    ja_nodes.push(W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.id : element.attributes.wazeFeature._wmeObject.attributes.id);
+                    ja_nodes.push(element._wmeObject.attributes.id);
                     break;
                 case "segment":
                     //segments selected?
-                    if (W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.fromNodeID : element.attributes.wazeFeature._wmeObject.attributes.fromNodeID != null &&
-                        ja_nodes.indexOf(W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.fromNodeID : element.attributes.wazeFeature._wmeObject.attributes.fromNodeID) === -1) {
-                        ja_nodes.push(W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.fromNodeID : element.attributes.wazeFeature._wmeObject.attributes.fromNodeID);
+                    if (element._wmeObject.attributes.fromNodeID != null &&
+                        ja_nodes.indexOf(element._wmeObject.attributes.fromNodeID) === -1) {
+                        ja_nodes.push(element._wmeObject.attributes.fromNodeID);
                     }
-                    if (W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.toNodeID : element.attributes.wazeFeature._wmeObject.attributes.toNodeID != null &&
-                        ja_nodes.indexOf(W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.toNodeID : element.attributes.wazeFeature._wmeObject.attributes.toNodeID) === -1) {
-                        ja_nodes.push(W.version.substr(1,3) > '2.1' ? element._wmeObject.attributes.toNodeID : element.attributes.wazeFeature._wmeObject.attributes.toNodeID);
+                    if (element._wmeObject.attributes.toNodeID != null &&
+                        ja_nodes.indexOf(element._wmeObject.attributes.toNodeID) === -1) {
+                        ja_nodes.push(element._wmeObject.attributes.toNodeID);
                     }
                     break;
                 case "venue":
                     break;
                 default:
-                    ja_log("Found unknown item type: " + W.version.substr(1,3) > '2.1' ? element._wmeObject.type : element.attributes.wazeFeature._wmeObject.type, 2);
+                    ja_log("Found unknown item type: " + element._wmeObject.type, 2);
                     break;
             }
             ja_log(ja_nodes, 2);
@@ -1049,7 +1049,7 @@ function run_ja() {
         //Loop through all 15m or less long segments and collect double-turn disallowed ones
         if (ja_getOption("angleMode") === "aDeparture" && ja_nodes.length > 1) {
             window.W.selectionManager.getSelectedFeatures().forEach(function (selectedSegment) {
-                var segmentId = W.version.substr(1,3) > '2.1' ? selectedSegment._wmeObject.attributes.id : selectedSegment.attributes.wazeFeature._wmeObject.attributes.id;
+                var segmentId = selectedSegment._wmeObject.attributes.id;
                 var segment = window.W.model.segments.objects[segmentId];
                 ja_log("Checking " + segmentId + " for double turns ...", 2);
  
@@ -1162,7 +1162,7 @@ function run_ja() {
             //make sure we have the selected angles in correct order
             ja_log(ja_current_node_segments, 3);
             window.W.selectionManager.getSelectedFeatures().forEach(function (selectedSegment) {
-                var selectedSegmentId = W.version.substr(1,3) > '2.1' ? selectedSegment._wmeObject.attributes.id : selectedSegment.attributes.wazeFeature._wmeObject.attributes.id;
+                var selectedSegmentId = selectedSegment._wmeObject.attributes.id;
                 ja_log("Checking if " + selectedSegmentId + " is in current node", 3);
                 if(ja_current_node_segments.indexOf(selectedSegmentId) >= 0) {
                     ja_log("It is!", 4);
