@@ -4,7 +4,7 @@
 // @match         https://beta.waze.com/*editor*
 // @match         https://www.waze.com/*editor*
 // @exclude       https://www.waze.com/*user/*editor/*
-// @version       2.2.12
+// @version       2.2.13
 // @grant         GM_addElement
 // @namespace     https://greasyfork.org/scripts/35547-wme-junction-angle-info/
 // @require       https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
@@ -43,7 +43,9 @@ function run_ja() {
     /*
 	 * First some variable and enumeration definitions
 	 */
-    var junctionangle_version = "2.2.12";
+    var newwmever = W.version.substring(1, 6) >= '2.252'
+ 
+    var junctionangle_version = "2.2.13";
  
     var junctionangle_debug = 0;	//0: no output, 1: basic info, 2: debug 3: verbose debug, 4: insane debug
  
@@ -174,10 +176,20 @@ function run_ja() {
         }
     };
  
+    function getselfeat () {
+        if (newwmever){
+            return window.W.selectionManager.getSelectedWMEFeatures();
+        } else {
+            return window.W.selectionManager.getSelectedFeatures();
+        }
+    }
+ 
     function testSelectedItem(){
-        if (window.W.selectionManager.getSelectedFeatures().length > 1) { return; }
+        if (getselfeat().length > 1) { return; }
+ 
         var registerInterval = false;
-        window.W.selectionManager.getSelectedFeatures().forEach(function(element) {
+ 
+        getselfeat().forEach(function(element) {
             switch (element._wmeObject.type) {
                 case "node":
                 case "segment":
@@ -187,6 +199,7 @@ function run_ja() {
                     break;
             }
         });
+ 
         if (registerInterval == true){
             ja_calculation_Interval.set();
         }else{
@@ -860,10 +873,10 @@ function run_ja() {
         }
  
         //try to show all angles for all selected segments
-        if (window.W.selectionManager.getSelectedFeatures().length === 0) { return; }
-        ja_log("Checking junctions for " + window.W.selectionManager.getSelectedFeatures().length + " segments", 2);
+        if (getselfeat().length === 0) { return; }
+        ja_log("Checking junctions for " + getselfeat().length + " segments", 2);
  
-        window.W.selectionManager.getSelectedFeatures().forEach(function(element) {
+        getselfeat().forEach(function(element) {
             ja_log(element, 3);
             switch (element._wmeObject.type) {
                 case "node":
@@ -1048,7 +1061,7 @@ function run_ja() {
  
         //Loop through all 15m or less long segments and collect double-turn disallowed ones
         if (ja_getOption("angleMode") === "aDeparture" && ja_nodes.length > 1) {
-            window.W.selectionManager.getSelectedFeatures().forEach(function (selectedSegment) {
+            getselfeat().forEach(function (selectedSegment) {
                 var segmentId = selectedSegment._wmeObject.attributes.id;
                 var segment = window.W.model.segments.objects[segmentId];
                 ja_log("Checking " + segmentId + " for double turns ...", 2);
@@ -1161,7 +1174,7 @@ function run_ja() {
  
             //make sure we have the selected angles in correct order
             ja_log(ja_current_node_segments, 3);
-            window.W.selectionManager.getSelectedFeatures().forEach(function (selectedSegment) {
+            getselfeat().forEach(function (selectedSegment) {
                 var selectedSegmentId = selectedSegment._wmeObject.attributes.id;
                 ja_log("Checking if " + selectedSegmentId + " is in current node", 3);
                 if(ja_current_node_segments.indexOf(selectedSegmentId) >= 0) {
@@ -1909,22 +1922,22 @@ function run_ja() {
  
     function ja_get_first_point(segment) {
         return getOLFeatureGeometryFromSegment(segment).components[0];
-//        return segment.getOLGeometry().components[0];
+        //        return segment.getOLGeometry().components[0];
     }
  
     function ja_get_last_point(segment) {
         return getOLFeatureGeometryFromSegment(segment).components.at(-1);
-//        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 1];
+        //        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 1];
     }
  
     function ja_get_second_point(segment) {
         return getOLFeatureGeometryFromSegment(segment).components[1];
-//        return segment.getOLGeometry().components[1];
+        //        return segment.getOLGeometry().components[1];
     }
  
     function ja_get_next_to_last_point(segment) {
         return getOLFeatureGeometryFromSegment(segment).components.at(-2);
-//        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 2];
+        //        return segment.getOLGeometry().components[segment.getOLGeometry().components.length - 2];
     }
  
     //get the absolute angle for a segment end point
